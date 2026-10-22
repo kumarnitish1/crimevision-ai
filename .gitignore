@@ -1,0 +1,24 @@
+
+# Python virtual environment
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# API keys and secrets
+.env
+
+# Generated analysis output
+extracted_frames/
+frame_results.json
+timeline.json
+
+# Local test video
+scene.mp4
+
+# Allow project files
+!.gitignore
+!*.py
+!README.md
+!requirements.txt
