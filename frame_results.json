@@ -1,0 +1,68 @@
+{
+  "video": "scene.mp4",
+  "fps": 23.98,
+  "duration_seconds": 14.64,
+  "frames_extracted": 15,
+  "frames": [
+    {
+      "timestamp_seconds": 0.0,
+      "frame_path": "extracted_frames\\frame_000.00.jpg"
+    },
+    {
+      "timestamp_seconds": 1.0,
+      "frame_path": "extracted_frames\\frame_001.00.jpg"
+    },
+    {
+      "timestamp_seconds": 2.0,
+      "frame_path": "extracted_frames\\frame_002.00.jpg"
+    },
+    {
+      "timestamp_seconds": 3.0,
+      "frame_path": "extracted_frames\\frame_003.00.jpg"
+    },
+    {
+      "timestamp_seconds": 4.0,
+      "frame_path": "extracted_frames\\frame_004.00.jpg"
+    },
+    {
+      "timestamp_seconds": 5.0,
+      "frame_path": "extracted_frames\\frame_005.00.jpg"
+    },
+    {
+      "timestamp_seconds": 6.01,
+      "frame_path": "extracted_frames\\frame_006.01.jpg"
+    },
+    {
+      "timestamp_seconds": 7.01,
+      "frame_path": "extracted_frames\\frame_007.01.jpg"
+    },
+    {
+      "timestamp_seconds": 8.01,
+      "frame_path": "extracted_frames\\frame_008.01.jpg"
+    },
+    {
+      "timestamp_seconds": 9.01,
+      "frame_path": "extracted_frames\\frame_009.01.jpg"
+    },
+    {
+      "timestamp_seconds": 10.01,
+      "frame_path": "extracted_frames\\frame_010.01.jpg"
+    },
+    {
+      "timestamp_seconds": 11.01,
+      "frame_path": "extracted_frames\\frame_011.01.jpg"
+    },
+    {
+      "timestamp_seconds": 12.01,
+      "frame_path": "extracted_frames\\frame_012.01.jpg"
+    },
+    {
+      "timestamp_seconds": 13.01,
+      "frame_path": "extracted_frames\\frame_013.01.jpg"
+    },
+    {
+      "timestamp_seconds": 14.01,
+      "frame_path": "extracted_frames\\frame_014.01.jpg"
+    }
+  ]
+}
