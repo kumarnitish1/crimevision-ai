@@ -9,7 +9,8 @@ from gemini_helper import generate
 
 INPUT_FILE = Path("frame_results.json")
 OUTPUT_FILE = Path("timeline.json")
-BATCH_SIZE = 5
+BATCH_SIZE = 3
+MAX_BATCH_ATTEMPTS = 2
 
 
 def parse_json(text):
@@ -33,6 +34,28 @@ def parse_json(text):
             return json.loads(text[start_object:end_object + 1])
 
         raise ValueError("Gemini did not return valid JSON.")
+    
+import time
+
+
+def analyze_batch_with_retry(batch):
+    """Retry a failed batch once, without changing successful results."""
+    last_error = None
+
+    for attempt in range(MAX_BATCH_ATTEMPTS):
+        try:
+            return analyze_frame_batch(batch)
+        except Exception as error:
+            last_error = error
+
+            if attempt < MAX_BATCH_ATTEMPTS - 1:
+                print("Batch failed. Retrying once in 5 seconds...")
+                time.sleep(5)
+
+    raise RuntimeError(
+        f"Batch failed after {MAX_BATCH_ATTEMPTS} attempts: {last_error}"
+    )
+
 
 
 def analyze_frame_batch(frames):
@@ -161,7 +184,7 @@ def build_timeline():
         )
 
         try:
-            descriptions = analyze_frame_batch(batch)
+            descriptions = analyze_batch_with_retry(batch)
 
             # Match model responses to the requested timestamps.
             by_timestamp = {
