@@ -3,7 +3,6 @@ import json
 from pathlib import Path
 from datetime import datetime, timezone
 
-
 VIDEO_FILE = Path("timeline.json")
 IMAGE_FILE = Path("image_results.txt")
 AUDIO_FILE = Path("audio_results.txt")
@@ -11,18 +10,15 @@ OUTPUT_FILE = Path("fusion_report.json")
 
 
 def load_json(path):
-    """Load a JSON file and return its contents."""
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
 
 
 def load_text_evidence(path, source):
-    """Load optional text results from image or audio analysis."""
     if not path.exists():
         return None
 
     text = path.read_text(encoding="utf-8").strip()
-
     if not text:
         return None
 
@@ -34,6 +30,71 @@ def load_text_evidence(path, source):
     }
 
 
+def validate_cross_modal(video_findings, image_evidence, audio_evidence):
+    """
+    Perform conservative checks using the evidence currently available.
+    Text-only image/audio reports without timestamps or structured entities
+    cannot establish reliable cross-modal corroboration.
+    """
+    corroborated = []
+    conflicts = []
+    checks = []
+
+    sources = {
+        "video": bool(video_findings),
+        "image": image_evidence is not None,
+        "audio": audio_evidence is not None
+    }
+
+    available_count = sum(sources.values())
+
+    checks.append({
+        "check": "source_availability",
+        "sources": sources,
+        "result": (
+            "multiple_sources_available"
+            if available_count > 1
+            else "insufficient_sources_for_cross_modal_check"
+        )
+    })
+
+    # Image/audio results are currently unstructured text without timestamps.
+    # Avoid treating missing details as proof of a contradiction.
+    checks.append({
+        "check": "timestamp_alignment",
+        "result": "not_possible_for_all_sources",
+        "reason": (
+            "Image and audio reports do not currently provide timestamps "
+            "that can be reliably aligned with video events."
+        )
+    })
+
+    checks.append({
+        "check": "entity_matching",
+        "result": "not_performed",
+        "reason": (
+            "Image and audio findings are not yet represented as structured "
+            "people, objects, and actions for reliable entity matching."
+        )
+    })
+
+    if available_count > 1:
+        status = "partial_checks_only"
+    else:
+        status = "insufficient_evidence"
+
+    return {
+        "status": status,
+        "corroborated_findings": corroborated,
+        "conflicts": conflicts,
+        "checks": checks,
+        "note": (
+            "Source availability is not corroboration. No agreement or "
+            "conflict is asserted without a reliable, comparable observation."
+        )
+    }
+
+
 def fuse_evidence():
     if not VIDEO_FILE.exists():
         raise FileNotFoundError(
@@ -41,11 +102,9 @@ def fuse_evidence():
         )
 
     video_data = load_json(VIDEO_FILE)
-
     findings = []
     unified_timeline = []
 
-    # Include video findings with their timestamps.
     for event in video_data.get("timeline", []):
         if event.get("analysis_status") != "completed":
             continue
@@ -68,7 +127,6 @@ def fuse_evidence():
             "verification_status": "single_source_observation"
         })
 
-    # Add image analysis, if a saved result is available.
     image_evidence = load_text_evidence(IMAGE_FILE, "image")
     if image_evidence:
         findings.append(image_evidence)
@@ -80,7 +138,6 @@ def fuse_evidence():
             "note": "No timestamp supplied by the image analysis."
         })
 
-    # Add audio analysis, if a saved result is available.
     audio_evidence = load_text_evidence(AUDIO_FILE, "audio")
     if audio_evidence:
         findings.append(audio_evidence)
@@ -92,7 +149,6 @@ def fuse_evidence():
             "note": "No timestamp supplied by the audio analysis."
         })
 
-    # Sort timestamped events first. Untimed evidence follows them.
     unified_timeline.sort(
         key=lambda item: (
             item["timestamp_seconds"] is None,
@@ -103,6 +159,11 @@ def fuse_evidence():
     )
 
     video_classification = video_data.get("classification", {})
+    validation = validate_cross_modal(
+        [item for item in findings if item["source"] == "video"],
+        image_evidence,
+        audio_evidence
+    )
 
     report = {
         "project": "CrimeVision AI",
@@ -110,26 +171,18 @@ def fuse_evidence():
         "video": video_data.get("video", "unknown"),
         "duration_seconds": video_data.get("duration_seconds"),
         "evidence_sources": {
-            "video": "loaded" if VIDEO_FILE.exists() else "missing",
+            "video": "loaded",
             "image": "loaded" if image_evidence else "not supplied",
             "audio": "loaded" if audio_evidence else "not supplied"
         },
         "unified_timeline": unified_timeline,
         "findings": findings,
         "video_classification": video_classification,
-        "cross_modal_validation": {
-            "status": "not_performed",
-            "corroborated_findings": [],
-            "conflicts": [],
-            "note": (
-                "Combining sources does not automatically establish "
-                "corroboration. Cross-modal matching requires explicit "
-                "comparison of entities, timestamps, and source reliability."
-            )
-        },
+        "cross_modal_validation": validation,
         "limitations": [
             "Video observations describe sampled frames, not every moment.",
             "Image and audio results have no timestamps unless supplied.",
+            "Image and audio findings are currently stored as unstructured text.",
             "A model-generated classification is not proof that a crime occurred.",
             "Missing evidence must not be treated as evidence of absence."
         ]
@@ -149,13 +202,12 @@ if __name__ == "__main__":
 
         print("=== CRIMEVISION AI: EVIDENCE FUSION ===")
         print("Video:", result["video"])
-        print("Timeline events:", len(result["unified_timeline"]))
+        print("Timeline entries:", len(result["unified_timeline"]))
         print("Evidence sources:", result["evidence_sources"])
         print(
-            "Video classification status:",
-            result["video_classification"].get("status", "unknown")
+            "Cross-modal validation:",
+            result["cross_modal_validation"]["status"]
         )
-        print("Cross-modal validation: not performed")
         print("Saved report:", OUTPUT_FILE)
 
     except (FileNotFoundError, json.JSONDecodeError, OSError) as error:

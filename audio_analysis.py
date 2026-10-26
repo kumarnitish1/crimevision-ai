@@ -35,20 +35,25 @@ Only report what is actually said."""
     return _ask_audio(path, prompt)
 
 
+
+
 if __name__ == "__main__":
-    print("=== TRANSCRIPT ===")
-    transcript = transcribe_audio("witness.m4a")
-    print(transcript)
+    try:
+        transcript = transcribe_audio("witness.m4a")
+        print("=== WITNESS TRANSCRIPT ===")
+        print(transcript)
 
-    print("\n=== STATEMENT ANALYSIS ===")
-    statement = analyze_statement("witness.m4a")
-    print(statement)
+        analysis = analyze_statement("witness.m4a")
+        print("\n=== WITNESS STATEMENT ANALYSIS ===")
+        print(analysis)
 
-    with open("audio_results.txt", "w", encoding="utf-8") as file:
-        file.write("TRANSCRIPT:\n")
-        file.write(transcript)
-        file.write("\n\nSTATEMENT ANALYSIS:\n")
-        file.write(statement)
+        with open("audio_results.txt", "w", encoding="utf-8") as file:
+            file.write("WITNESS TRANSCRIPT\n")
+            file.write(transcript)
+            file.write("\n\nWITNESS STATEMENT ANALYSIS\n")
+            file.write(analysis)
 
-    print("\nSaved audio analysis to audio_results.txt")
-9708
+        print("\nSaved audio analysis to audio_results.txt")
+
+    except Exception as error:
+        print(f"Audio analysis failed: {error}")
