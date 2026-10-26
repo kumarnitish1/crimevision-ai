@@ -34,9 +34,21 @@ GAPS: details that are unclear or missing and worth asking about
 Only report what is actually said."""
     return _ask_audio(path, prompt)
 
+
 if __name__ == "__main__":
     print("=== TRANSCRIPT ===")
-    print(transcribe_audio("witness.m4a"))
-    print()
-    print("=== STATEMENT ANALYSIS ===")
-    print(analyze_statement("witness.m4a"))
+    transcript = transcribe_audio("witness.m4a")
+    print(transcript)
+
+    print("\n=== STATEMENT ANALYSIS ===")
+    statement = analyze_statement("witness.m4a")
+    print(statement)
+
+    with open("audio_results.txt", "w", encoding="utf-8") as file:
+        file.write("TRANSCRIPT:\n")
+        file.write(transcript)
+        file.write("\n\nSTATEMENT ANALYSIS:\n")
+        file.write(statement)
+
+    print("\nSaved audio analysis to audio_results.txt")
+9708

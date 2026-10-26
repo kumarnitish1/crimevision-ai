@@ -24,9 +24,24 @@ POSSIBLE SCENARIOS: 2-3 hypotheses about what may have occurred, each with the v
 Treat these as possibilities, not conclusions."""
     return _ask(path, prompt)
 
+
 if __name__ == "__main__":
-    print("=== ACTIVITY 2.1: DETECTION ===")
-    print(detect_objects("crime1.jpg"))
-    print()
-    print("=== ACTIVITY 2.2: SCENE AND HYPOTHESES ===")
-    print(describe_scene("crime1.jpg"))
+    try:
+        detections = detect_objects("crime1.jpg")
+        print("=== ACTIVITY 2.1: DETECTION ===")
+        print(detections)
+
+        scene = describe_scene("crime1.jpg")
+        print("\n=== ACTIVITY 2.2: SCENE AND HYPOTHESES ===")
+        print(scene)
+
+        with open("image_results.txt", "w", encoding="utf-8") as file:
+            file.write("ACTIVITY 2.1: DETECTION\n")
+            file.write(detections)
+            file.write("\n\nACTIVITY 2.2: SCENE AND HYPOTHESES\n")
+            file.write(scene)
+
+        print("\nSaved image analysis to image_results.txt")
+
+    except Exception as error:
+        print(f"Image analysis failed: {error}")

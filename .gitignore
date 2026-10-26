@@ -22,3 +22,11 @@ scene.mp4
 !*.py
 !README.md
 !requirements.txt
+
+# Generated evidence and reports
+image_results.txt
+audio_results.txt
+fusion_report.json
+
+# Accidental terminal-output file
+dir
